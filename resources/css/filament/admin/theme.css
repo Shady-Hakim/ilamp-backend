@@ -1,0 +1,202 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+:root {
+    --font-family:
+        'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue',
+        sans-serif;
+    --gray-50: #f7f9ff;
+    --gray-100: #eef2ff;
+    --gray-200: #d9e1fb;
+    --gray-300: #b8c4ea;
+    --gray-400: #93a0c5;
+    --gray-500: #6f7b9c;
+    --gray-600: #56617f;
+    --gray-700: #3a4561;
+    --gray-800: #20283c;
+    --gray-900: #0c1322;
+    --gray-950: #080c16;
+    --ilamp-background: #080c16;
+    --ilamp-surface: #0c1322;
+    --ilamp-surface-strong: #111a2d;
+    --ilamp-border: rgba(140, 90, 242, 0.16);
+    --ilamp-border-strong: rgba(73, 130, 223, 0.22);
+    --ilamp-text: #f4f7ff;
+    --ilamp-text-muted: #97a3c6;
+    --ilamp-primary: #8c5af2;
+    --ilamp-accent: #4982df;
+}
+
+html.fi {
+    background: var(--ilamp-background);
+}
+
+body.fi-body,
+.fi-simple-layout {
+    background:
+        radial-gradient(
+            ellipse 80% 50% at 50% -20%,
+            rgba(140, 90, 242, 0.18),
+            transparent 55%
+        ),
+        radial-gradient(
+            ellipse 60% 40% at 82% 22%,
+            rgba(73, 130, 223, 0.14),
+            transparent 48%
+        ),
+        linear-gradient(180deg, #080c16 0%, #0b1120 100%);
+    color: var(--ilamp-text);
+}
+
+.fi-topbar-ctn {
+    backdrop-filter: blur(18px);
+}
+
+.fi-topbar {
+    background: rgba(12, 19, 34, 0.82);
+    border-bottom: 1px solid var(--ilamp-border);
+    box-shadow:
+        0 0 0 1px rgba(12, 19, 34, 0.3),
+        0 18px 48px -30px rgba(5, 9, 18, 0.9);
+}
+
+.fi-sidebar {
+    background:
+        radial-gradient(
+            circle at top,
+            rgba(140, 90, 242, 0.18),
+            transparent 32%
+        ),
+        linear-gradient(180deg, rgba(8, 12, 22, 0.98) 0%, rgba(12, 19, 34, 0.96) 100%);
+    border-inline-end: 1px solid var(--ilamp-border);
+    box-shadow: 24px 0 60px -42px rgba(4, 8, 16, 0.95);
+    backdrop-filter: blur(22px);
+}
+
+.fi-sidebar-close-overlay {
+    background: rgba(4, 8, 16, 0.72);
+}
+
+.fi-sidebar-header,
+.fi-body-has-topbar .fi-sidebar-header {
+    background: transparent;
+    border-bottom: 1px solid rgba(73, 130, 223, 0.08);
+    box-shadow: none;
+}
+
+.fi-sidebar-group-label,
+.fi-topbar-item-label,
+.fi-section-header-description,
+.fi-ta-header-description {
+    color: var(--ilamp-text-muted);
+}
+
+.fi-sidebar-item-btn,
+.fi-sidebar-group-dropdown-trigger-btn,
+.fi-topbar-item-btn {
+    border: 1px solid transparent;
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn,
+.fi-sidebar-item.fi-sidebar-item-has-active-child-items > .fi-sidebar-item-btn,
+.fi-topbar-item.fi-active .fi-topbar-item-btn {
+    background: linear-gradient(135deg, rgba(140, 90, 242, 0.22), rgba(73, 130, 223, 0.15));
+    border-color: rgba(140, 90, 242, 0.26);
+    box-shadow:
+        0 0 0 1px rgba(140, 90, 242, 0.12),
+        0 16px 36px -28px rgba(140, 90, 242, 0.9);
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-icon,
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-sidebar-item-label,
+.fi-sidebar-item.fi-sidebar-item-has-active-child-items > .fi-sidebar-item-btn > .fi-icon,
+.fi-sidebar-item.fi-sidebar-item-has-active-child-items > .fi-sidebar-item-btn > .fi-sidebar-item-label,
+.fi-topbar-item.fi-active .fi-topbar-item-btn > .fi-icon,
+.fi-topbar-item.fi-active .fi-topbar-item-label {
+    color: var(--ilamp-text);
+}
+
+.fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn:hover,
+.fi-sidebar-item.fi-sidebar-item-has-url > .fi-sidebar-item-btn:focus-visible,
+.fi-sidebar-group-dropdown-trigger-btn:hover,
+.fi-sidebar-group-dropdown-trigger-btn:focus-visible,
+.fi-topbar-item-btn:hover,
+.fi-topbar-item-btn:focus-visible {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(73, 130, 223, 0.12);
+}
+
+.fi-section:not(.fi-section-not-contained):not(.fi-aside),
+.fi-section.fi-aside > .fi-section-content-ctn,
+.fi-ta-ctn,
+.fi-simple-main,
+.fi-dropdown-panel,
+.fi-modal-window {
+    background:
+        linear-gradient(180deg, rgba(12, 19, 34, 0.97) 0%, rgba(8, 12, 22, 0.94) 100%);
+    box-shadow:
+        0 0 0 1px rgba(32, 40, 60, 0.85),
+        0 24px 60px -38px rgba(0, 0, 0, 0.95);
+}
+
+.fi-section:not(.fi-section-not-contained):not(.fi-aside).fi-section-has-header:not(.fi-collapsed)
+    > .fi-section-content-ctn,
+.fi-section:not(.fi-section-not-contained) > .fi-section-content-ctn > .fi-section-footer,
+.fi-ta-ctn .fi-ta-header,
+.fi-ta-ctn .fi-ta-header-toolbar,
+.fi-ta-ctn .fi-pagination,
+.fi-ta-ctn .fi-ta-reorder-indicator,
+.fi-ta-ctn .fi-ta-selection-indicator,
+.fi-ta-ctn .fi-ta-filter-indicators,
+.fi-ta-ctn .fi-ta-filters-below-content,
+.fi-ta-ctn .fi-ta-filters-above-content-ctn {
+    border-color: rgba(32, 40, 60, 0.9);
+}
+
+.fi-ta-ctn .fi-ta-reorder-indicator,
+.fi-ta-ctn .fi-ta-selection-indicator,
+.fi-ta-ctn .fi-ta-filter-indicators {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.fi-input-wrp,
+.fi-select-input .fi-select-input-btn,
+.fi-select-input .fi-select-input-options-ctn,
+.fi-select-input .fi-select-input-search-ctn,
+.fi-select-input select.fi-select-input,
+.fi-file-upload,
+.fi-fo-repeater-item {
+    background: rgba(255, 255, 255, 0.04);
+    box-shadow: inset 0 0 0 1px rgba(32, 40, 60, 0.95);
+}
+
+.fi-input-wrp:focus-within,
+.fi-select-input .fi-select-input-btn:focus-within {
+    box-shadow:
+        inset 0 0 0 1px rgba(140, 90, 242, 0.45),
+        0 0 0 1px rgba(140, 90, 242, 0.28),
+        0 0 0 4px rgba(140, 90, 242, 0.12);
+}
+
+.fi-btn.fi-color-primary {
+    background: linear-gradient(90deg, var(--ilamp-primary), var(--ilamp-accent));
+    border-color: transparent;
+    box-shadow: 0 14px 32px -22px rgba(140, 90, 242, 0.9);
+}
+
+.fi-btn.fi-color-primary:hover,
+.fi-btn.fi-color-primary:focus-visible {
+    filter: brightness(1.04);
+    box-shadow: 0 18px 40px -24px rgba(140, 90, 242, 0.95);
+}
+
+.fi-link,
+.fi-link:hover {
+    color: #b9c6ff;
+}
+
+.fi-badge {
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}

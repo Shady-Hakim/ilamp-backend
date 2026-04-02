@@ -1,0 +1,5 @@
+User-Agent: *
+Allow: /
+
+Host: https://ilampagency.com
+Sitemap: https://ilampagency.com/sitemap.xml
