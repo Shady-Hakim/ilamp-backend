@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('blog_post_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
 
-            $table->unique(['blog_category_id', 'blog_post_id']);
+            $table->unique(['blog_category_id', 'blog_post_id'], 'bcp_cat_post_unique');
         });
     }
 

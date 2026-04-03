@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('portfolio_project_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
 
-            $table->unique(['portfolio_category_id', 'portfolio_project_id']);
+            $table->unique(['portfolio_category_id', 'portfolio_project_id'], 'pcp_cat_proj_unique');
         });
     }
 
