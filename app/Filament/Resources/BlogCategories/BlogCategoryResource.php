@@ -52,8 +52,12 @@ class BlogCategoryResource extends Resource
                 ->helperText('Optional. If left empty, it will be generated from the name when you save.'),
             Select::make('icon_key')
                 ->label('Icon')
-                ->options(CategoryIconOptions::all())
+                ->options(CategoryIconOptions::withPreview())
+                ->allowHtml()
+                ->extraFieldWrapperAttributes(['class' => 'ilamp-icon-picker-grid'])
                 ->searchable()
+                ->getSearchResultsUsing(fn (string $search): array => CategoryIconOptions::searchWithPreview($search))
+                ->getOptionLabelUsing(fn ($value): ?string => CategoryIconOptions::previewLabel($value))
                 ->native(false)
                 ->placeholder('Choose an icon'),
             Toggle::make('is_published')->default(true),
