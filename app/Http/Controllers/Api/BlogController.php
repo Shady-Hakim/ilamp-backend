@@ -29,6 +29,7 @@ class BlogController extends Controller
                 'name' => $category->name,
                 'slug' => $category->slug,
                 'description' => $category->description,
+                'iconKey' => $category->icon_key,
             ])->values()
         );
     }
@@ -94,6 +95,7 @@ class BlogController extends Controller
                 'name' => $category->name,
                 'slug' => $category->slug,
                 'description' => $category->description,
+                'iconKey' => $category->icon_key,
             ])->values(),
         ];
     }

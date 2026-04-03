@@ -5,11 +5,13 @@ namespace App\Filament\Resources\BlogCategories;
 use App\Filament\Resources\BlogCategories\Pages\ManageBlogCategories;
 use App\Models\BlogCategory;
 use App\Support\AutoSlug;
+use App\Support\CategoryIconOptions;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
@@ -48,6 +50,12 @@ class BlogCategoryResource extends Resource
                     return AutoSlug::resolve($state, $get('name'));
                 })
                 ->helperText('Optional. If left empty, it will be generated from the name when you save.'),
+            Select::make('icon_key')
+                ->label('Icon')
+                ->options(CategoryIconOptions::all())
+                ->searchable()
+                ->native(false)
+                ->placeholder('Choose an icon'),
             Toggle::make('is_published')->default(true),
             Textarea::make('description')->rows(4)->columnSpanFull(),
         ]);

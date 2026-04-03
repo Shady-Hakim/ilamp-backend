@@ -875,6 +875,7 @@ class DatabaseSeeder extends Seeder
                         'id' => $category['id'],
                         'name' => $category['name'],
                         'description' => $category['description'],
+                        'icon_key' => $category['iconKey'] ?? null,
                         'is_published' => true,
                     ],
                 );
@@ -884,13 +885,13 @@ class DatabaseSeeder extends Seeder
         }
 
         $categories = [
-            ['id' => 1, 'name' => 'AI', 'slug' => 'ai', 'description' => 'Insights and technologies shaping the future of AI.'],
-            ['id' => 2, 'name' => 'Web Development', 'slug' => 'web-development', 'description' => 'Frameworks, performance optimization, and modern web best practices.'],
-            ['id' => 3, 'name' => 'Digital Marketing', 'slug' => 'digital-marketing', 'description' => 'Campaign strategy, social media, and growth tactics.'],
-            ['id' => 4, 'name' => 'SEO', 'slug' => 'seo', 'description' => 'Search optimization techniques for better organic visibility.'],
-            ['id' => 5, 'name' => 'SaaS', 'slug' => 'saas', 'description' => 'Scaling strategies for software-as-a-service businesses.'],
-            ['id' => 6, 'name' => 'Technology', 'slug' => 'technology', 'description' => 'Emerging technology trends and development insights.'],
-            ['id' => 7, 'name' => 'Business Growth', 'slug' => 'business-growth', 'description' => 'Automation and strategies to accelerate business growth.'],
+            ['id' => 1, 'name' => 'AI', 'slug' => 'ai', 'description' => 'Insights and technologies shaping the future of AI.', 'icon_key' => 'BrainCircuit'],
+            ['id' => 2, 'name' => 'Web Development', 'slug' => 'web-development', 'description' => 'Frameworks, performance optimization, and modern web best practices.', 'icon_key' => 'Code'],
+            ['id' => 3, 'name' => 'Digital Marketing', 'slug' => 'digital-marketing', 'description' => 'Campaign strategy, social media, and growth tactics.', 'icon_key' => 'Megaphone'],
+            ['id' => 4, 'name' => 'SEO', 'slug' => 'seo', 'description' => 'Search optimization techniques for better organic visibility.', 'icon_key' => 'Search'],
+            ['id' => 5, 'name' => 'SaaS', 'slug' => 'saas', 'description' => 'Scaling strategies for software-as-a-service businesses.', 'icon_key' => 'Cloud'],
+            ['id' => 6, 'name' => 'Technology', 'slug' => 'technology', 'description' => 'Emerging technology trends and development insights.', 'icon_key' => 'Cpu'],
+            ['id' => 7, 'name' => 'Business Growth', 'slug' => 'business-growth', 'description' => 'Automation and strategies to accelerate business growth.', 'icon_key' => 'BarChart3'],
         ];
 
         foreach ($categories as $category) {
