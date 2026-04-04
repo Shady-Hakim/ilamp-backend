@@ -12,6 +12,5 @@ class MediaAssetObserver
         $service = app(MediaLibraryService::class);
 
         $service->deletePhysicalFile($asset);
-        $service->clearAssetReferences($asset);
     }
 }

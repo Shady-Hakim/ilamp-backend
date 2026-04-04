@@ -67,9 +67,9 @@ class PortfolioController extends Controller
     protected function transformProject(PortfolioProject $project, Request $request): array
     {
         $origin = $request->getSchemeAndHttpHost();
-        $imageMeta = $this->mediaLibraryService->toApiMedia($project->image_url, $origin);
-        $clientLogoMeta = $this->mediaLibraryService->toApiMedia($project->client_logo_url, $origin);
-        $galleryMeta = collect($project->gallery ?? [])
+        $imageMeta = $this->mediaLibraryService->toApiMedia($project->image_resolved_url, $origin);
+        $clientLogoMeta = $this->mediaLibraryService->toApiMedia($project->client_logo_resolved_url, $origin);
+        $galleryMeta = collect($project->gallery_resolved_urls)
             ->map(fn (string $image): ?array => $this->mediaLibraryService->toApiMedia($image, $origin))
             ->filter()
             ->values();

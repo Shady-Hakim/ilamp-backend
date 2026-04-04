@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\BlogPosts;
 
+use App\Livewire\MediaCollectionPicker;
 use App\Filament\Resources\BlogPosts\Pages\ManageBlogPosts;
 use App\Models\BlogPost;
 use App\Support\AutoSlug;
-use App\Support\MediaLibraryPicker;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -20,6 +20,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -63,14 +64,11 @@ class BlogPostResource extends Resource
                     TextInput::make('author_name')
                         ->default('iLamp Team')
                         ->placeholder('iLamp Team'),
-                    MediaLibraryPicker::make('image_url')
-                        ->label('Featured image')
-                        ->columnSpanFull()
-                        ->uploadDisk('public')
-                        ->uploadDirectory('blog-images')
-                        ->uploadVisibility('public')
-                        ->uploadImageEditor()
-                        ->helperText('Open the image library to choose an existing image or upload a new one.'),
+                    Livewire::make(MediaCollectionPicker::class, [
+                        'collection' => 'image',
+                        'label' => 'Featured image',
+                        'multiple' => false,
+                    ])->columnSpanFull(),
                     DateTimePicker::make('published_at'),
                     Toggle::make('is_featured')->default(false),
                     Toggle::make('is_published')->default(true),

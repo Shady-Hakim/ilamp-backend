@@ -8,6 +8,7 @@ use App\Models\MailSetting;
 use App\Models\SiteSetting;
 use App\Services\ConsultationAvailabilityService;
 use App\Services\MailSettingsService;
+use App\Services\RecaptchaService;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
@@ -50,17 +51,23 @@ class ConsultationController extends Controller
         Request $request,
         ConsultationAvailabilityService $availabilityService,
         MailSettingsService $mailSettingsService,
+        RecaptchaService $recaptcha,
     ): JsonResponse {
         $data = $request->validate([
-            'date' => ['required', 'date_format:Y-m-d'],
-            'start' => ['required', 'date_format:H:i'],
-            'end' => ['required', 'date_format:H:i'],
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255'],
-            'phone' => ['required', 'string', 'max:255'],
-            'company' => ['nullable', 'string', 'max:255'],
-            'message' => ['nullable', 'string'],
+            'date'            => ['required', 'date_format:Y-m-d'],
+            'start'           => ['required', 'date_format:H:i'],
+            'end'             => ['required', 'date_format:H:i'],
+            'name'            => ['required', 'string', 'max:255'],
+            'email'           => ['required', 'email', 'max:255'],
+            'phone'           => ['required', 'string', 'max:255'],
+            'company'         => ['nullable', 'string', 'max:255'],
+            'message'         => ['nullable', 'string'],
+            'recaptcha_token' => ['nullable', 'string'],
         ]);
+
+        if (! $recaptcha->verify($request->input('recaptcha_token'))) {
+            return response()->json(['message' => 'reCAPTCHA verification failed. Please try again.'], 422);
+        }
 
         $availableSlots = collect($availabilityService->slotsForDate(Carbon::parse($data['date'])));
         $matchingSlot = $availableSlots->first(

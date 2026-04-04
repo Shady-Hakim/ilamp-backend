@@ -24,6 +24,7 @@ class SiteSettingController extends Controller
             'whatsappUrl' => SiteSetting::buildWhatsappUrl($whatsappNumber),
             'responseTimeText' => $settings?->response_time_text,
             'socialLinks' => SiteSetting::normalizeSocialLinks($settings?->social_links),
+            'recaptchaSiteKey' => filled($settings?->recaptcha_site_key) ? $settings->recaptcha_site_key : null,
         ]);
     }
 }

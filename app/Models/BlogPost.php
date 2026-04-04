@@ -2,12 +2,19 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RegistersNonOptimizedMediaConversions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class BlogPost extends Model
+class BlogPost extends Model implements HasMedia
 {
+    use InteractsWithMedia;
+    use RegistersNonOptimizedMediaConversions;
+
     protected $guarded = [];
 
     protected static function booted(): void
@@ -31,6 +38,21 @@ class BlogPost extends Model
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(BlogCategory::class, 'blog_category_post')->withTimestamps();
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('image')->singleFile();
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->registerDefaultNonOptimizedConversions('image');
+    }
+
+    public function getImageResolvedUrlAttribute(): ?string
+    {
+        return $this->getFirstMediaUrl('image', 'large') ?: null;
     }
 
     public static function generateExcerpt(?string $body, int $limit = 220): ?string

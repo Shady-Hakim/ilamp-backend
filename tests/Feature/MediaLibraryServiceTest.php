@@ -2,9 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\BlogPost;
 use App\Models\MediaAsset;
-use App\Models\PortfolioProject;
 use App\Services\MediaLibraryService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
@@ -47,23 +45,8 @@ class MediaLibraryServiceTest extends TestCase
     {
         Storage::disk('public')->put('library-test/delete-me.png', $this->pngFixture());
 
-        $blogPost = BlogPost::query()->create([
-            'slug' => 'library-test-post',
-            'title' => 'Library Test Post',
-            'image_url' => 'library-test/delete-me.png',
-        ]);
-
-        $project = PortfolioProject::query()->create([
-            'slug' => 'library-test-project',
-            'title' => 'Library Test Project',
-            'image_url' => 'library-test/delete-me.png',
-            'gallery' => ['library-test/delete-me.png'],
-        ]);
-
         app(MediaLibraryService::class)->syncReferencedFiles([
-            $blogPost->image_url,
-            $project->image_url,
-            ...($project->gallery ?? []),
+            'library-test/delete-me.png',
         ]);
 
         $asset = MediaAsset::query()->where([
@@ -74,9 +57,6 @@ class MediaLibraryServiceTest extends TestCase
         $asset->delete();
 
         $this->assertFalse(Storage::disk('public')->exists('library-test/delete-me.png'));
-        $this->assertNull($blogPost->fresh()->image_url);
-        $this->assertNull($project->fresh()->image_url);
-        $this->assertSame([], $project->fresh()->gallery);
     }
 
     public function test_sync_preserves_existing_library_seo_fields(): void
@@ -109,9 +89,16 @@ class MediaLibraryServiceTest extends TestCase
 
     protected function pngFixture(): string
     {
-        return (string) base64_decode(
-            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO8B2eQAAAAASUVORK5CYII=',
-            true,
-        );
+        $image = imagecreatetruecolor(2, 2);
+        $background = imagecolorallocate($image, 255, 255, 255);
+        imagefill($image, 0, 0, $background);
+
+        ob_start();
+        imagepng($image);
+        $binary = (string) ob_get_clean();
+
+        imagedestroy($image);
+
+        return $binary;
     }
 }

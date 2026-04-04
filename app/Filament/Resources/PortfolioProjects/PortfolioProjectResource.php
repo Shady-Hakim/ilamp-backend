@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\PortfolioProjects;
 
 use App\Filament\Resources\PortfolioProjects\Pages\ManagePortfolioProjects;
+use App\Livewire\MediaCollectionPicker;
 use App\Models\PortfolioProject;
 use App\Support\AutoSlug;
-use App\Support\MediaLibraryPicker;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -18,6 +18,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
@@ -67,14 +68,11 @@ class PortfolioProjectResource extends Resource
                         ->helperText('Optional. Used for the Preview Project button on the frontend.'),
                     DateTimePicker::make('published_at')
                         ->default(fn (): \Illuminate\Support\Carbon => now()),
-                    MediaLibraryPicker::make('image_url')
-                        ->label('Project image')
-                        ->columnSpanFull()
-                        ->uploadDisk('public')
-                        ->uploadDirectory('portfolio/projects')
-                        ->uploadVisibility('public')
-                        ->uploadImageEditor()
-                        ->helperText('Open the image library to choose an existing image or upload a new one.'),
+                    Livewire::make(MediaCollectionPicker::class, [
+                        'collection' => 'featured_image',
+                        'label' => 'Project image',
+                        'multiple' => false,
+                    ])->columnSpanFull(),
                     Toggle::make('is_featured')->default(false),
                     Toggle::make('is_published')->default(true),
                     Textarea::make('short_description')->rows(3)->columnSpanFull(),
@@ -90,26 +88,19 @@ class PortfolioProjectResource extends Resource
                 ->columnSpanFull()
                 ->schema([
                     TextInput::make('client'),
-                    MediaLibraryPicker::make('client_logo_url')
-                        ->label('Client logo')
-                        ->columnSpanFull()
-                        ->uploadDisk('public')
-                        ->uploadDirectory('portfolio/client-logos')
-                        ->uploadVisibility('public')
-                        ->uploadImageEditor()
-                        ->helperText('Open the image library to choose an existing logo or upload a new one.'),
+                    Livewire::make(MediaCollectionPicker::class, [
+                        'collection' => 'client_logo',
+                        'label' => 'Client logo',
+                        'multiple' => false,
+                    ])->columnSpanFull(),
                     Textarea::make('client_brief')->rows(3)->columnSpanFull(),
                     TagsInput::make('tech_stack')->columnSpanFull(),
                     TagsInput::make('results')->columnSpanFull(),
-                    MediaLibraryPicker::make('gallery')
-                        ->label('Gallery')
-                        ->multiple()
-                        ->columnSpanFull()
-                        ->previewLimit(6)
-                        ->uploadDisk('public')
-                        ->uploadDirectory('portfolio/gallery')
-                        ->uploadVisibility('public')
-                        ->helperText('Open the image library to choose gallery images or upload new ones.'),
+                    Livewire::make(MediaCollectionPicker::class, [
+                        'collection' => 'gallery',
+                        'label' => 'Gallery images',
+                        'multiple' => true,
+                    ])->columnSpanFull(),
                     Textarea::make('challenge')->rows(4)->columnSpanFull(),
                     Textarea::make('solution')->rows(4)->columnSpanFull(),
                 ])

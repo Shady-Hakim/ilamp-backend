@@ -4,13 +4,15 @@ namespace App\Observers;
 
 use App\Models\BlogPost;
 use App\Services\FrontendStaticRouteService;
-use App\Services\MediaLibraryService;
 
 class BlogPostObserver
 {
     public function saved(BlogPost $blogPost): void
     {
-        app(MediaLibraryService::class)->syncBlogPost($blogPost);
-        app(FrontendStaticRouteService::class)->syncBlogPost($blogPost);
+        try {
+            app(FrontendStaticRouteService::class)->syncBlogPost($blogPost);
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
     }
 }

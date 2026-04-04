@@ -35,14 +35,14 @@ class SiteSettingResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([
+        return $schema->columns(1)->components([
             Section::make('Brand')
                 ->schema([
                     TextInput::make('site_name')->required()->maxLength(255),
                     TextInput::make('site_tagline')->maxLength(255),
                     Textarea::make('footer_description')->rows(4)->columnSpanFull(),
                 ])
-                ->columns(2),
+                ->columns(1),
             Section::make('Contact')
                 ->schema([
                     TextInput::make('contact_email')->email(),
@@ -57,7 +57,7 @@ class SiteSettingResource extends Resource
                         ->helperText('Enter the WhatsApp number with country code. Example: +201555164031'),
                     TextInput::make('response_time_text')->columnSpanFull(),
                 ])
-                ->columns(2),
+                ->columns(1),
             Section::make('Social Links')
                 ->schema([
                     Repeater::make('social_links')
@@ -72,6 +72,22 @@ class SiteSettingResource extends Resource
                         ->defaultItems(0)
                         ->columnSpanFull(),
                 ]),
+            Section::make('Google reCAPTCHA')
+                ->schema([
+                    TextInput::make('recaptcha_site_key')
+                        ->label('Site Key (public)')
+                        ->maxLength(255)
+                        ->placeholder('6Le...')
+                        ->helperText('Paste the Site Key from your Google reCAPTCHA admin console.'),
+                    TextInput::make('recaptcha_secret_key')
+                        ->label('Secret Key (private)')
+                        ->password()
+                        ->revealable()
+                        ->maxLength(255)
+                        ->placeholder('6Le...')
+                        ->helperText('Paste the Secret Key. It is stored securely and never exposed to the frontend.'),
+                ])
+                ->columns(1),
         ]);
     }
 

@@ -111,17 +111,19 @@ class FrontendStaticRouteService
             $templateSlug => $project->slug,
         ];
 
-        foreach ([
-            $this->firstMatch('/<title>(.*?)<\/title>/i', $template) => $title,
-            $this->firstMatch('/<meta name="description" content="([^"]*)"/i', $template) => $description,
-            $this->firstMatch('/<link rel="canonical" href="([^"]*)"/i', $template) => $url,
-            $this->firstMatch('/<meta property="og:url" content="([^"]*)"/i', $template) => $url,
-            $this->firstMatch('/<meta property="og:title" content="([^"]*)"/i', $template) => $title,
-            $this->firstMatch('/<meta property="og:description" content="([^"]*)"/i', $template) => $description,
-            $this->firstMatch('/<meta name="twitter:title" content="([^"]*)"/i', $template) => $title,
-            $this->firstMatch('/<meta name="twitter:description" content="([^"]*)"/i', $template) => $description,
-            $this->firstMatch('/<meta property="og:image:alt" content="([^"]*)"/i', $template) => $title,
-        ] as $from => $to) {
+        $replacementPairs = [
+            [$this->firstMatch('/<title>(.*?)<\/title>/i', $template), $title],
+            [$this->firstMatch('/<meta name="description" content="([^"]*)"/i', $template), $description],
+            [$this->firstMatch('/<link rel="canonical" href="([^"]*)"/i', $template), $url],
+            [$this->firstMatch('/<meta property="og:url" content="([^"]*)"/i', $template), $url],
+            [$this->firstMatch('/<meta property="og:title" content="([^"]*)"/i', $template), $title],
+            [$this->firstMatch('/<meta property="og:description" content="([^"]*)"/i', $template), $description],
+            [$this->firstMatch('/<meta name="twitter:title" content="([^"]*)"/i', $template), $title],
+            [$this->firstMatch('/<meta name="twitter:description" content="([^"]*)"/i', $template), $description],
+            [$this->firstMatch('/<meta property="og:image:alt" content="([^"]*)"/i', $template), $title],
+        ];
+
+        foreach ($replacementPairs as [$from, $to]) {
             if (! filled($from)) {
                 continue;
             }
@@ -146,17 +148,19 @@ class FrontendStaticRouteService
             $templateSlug => $post->slug,
         ];
 
-        foreach ([
-            $this->firstMatch('/<title>(.*?)<\/title>/i', $template) => $title,
-            $this->firstMatch('/<meta name="description" content="([^"]*)"/i', $template) => $description,
-            $this->firstMatch('/<link rel="canonical" href="([^"]*)"/i', $template) => $url,
-            $this->firstMatch('/<meta property="og:url" content="([^"]*)"/i', $template) => $url,
-            $this->firstMatch('/<meta property="og:title" content="([^"]*)"/i', $template) => $title,
-            $this->firstMatch('/<meta property="og:description" content="([^"]*)"/i', $template) => $description,
-            $this->firstMatch('/<meta name="twitter:title" content="([^"]*)"/i', $template) => $title,
-            $this->firstMatch('/<meta name="twitter:description" content="([^"]*)"/i', $template) => $description,
-            $this->firstMatch('/<meta property="og:image:alt" content="([^"]*)"/i', $template) => $title,
-        ] as $from => $to) {
+        $replacementPairs = [
+            [$this->firstMatch('/<title>(.*?)<\/title>/i', $template), $title],
+            [$this->firstMatch('/<meta name="description" content="([^"]*)"/i', $template), $description],
+            [$this->firstMatch('/<link rel="canonical" href="([^"]*)"/i', $template), $url],
+            [$this->firstMatch('/<meta property="og:url" content="([^"]*)"/i', $template), $url],
+            [$this->firstMatch('/<meta property="og:title" content="([^"]*)"/i', $template), $title],
+            [$this->firstMatch('/<meta property="og:description" content="([^"]*)"/i', $template), $description],
+            [$this->firstMatch('/<meta name="twitter:title" content="([^"]*)"/i', $template), $title],
+            [$this->firstMatch('/<meta name="twitter:description" content="([^"]*)"/i', $template), $description],
+            [$this->firstMatch('/<meta property="og:image:alt" content="([^"]*)"/i', $template), $title],
+        ];
+
+        foreach ($replacementPairs as [$from, $to]) {
             if (! filled($from)) {
                 continue;
             }

@@ -74,7 +74,7 @@ class BlogController extends Controller
     protected function transformPost(BlogPost $post, Request $request): array
     {
         $imageMeta = $this->mediaLibraryService->toApiMedia(
-            $post->image_url,
+            $post->image_resolved_url,
             $request->getSchemeAndHttpHost(),
         );
 

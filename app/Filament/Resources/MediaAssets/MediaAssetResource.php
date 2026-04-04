@@ -22,6 +22,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\HtmlString;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class MediaAssetResource extends Resource
 {
@@ -243,41 +244,46 @@ HTML;
         $map = [];
 
         BlogPost::query()
-            ->select(['title', 'image_url'])
-            ->whereNotNull('image_url')
-            ->get()
+            ->with('media')
+            ->get(['id', 'title'])
             ->each(function (BlogPost $post) use (&$map, $service): void {
-                static::pushAttachmentLabel(
-                    $map,
-                    $service,
-                    $post->image_url,
-                    "Post: {$post->title}",
-                );
-            });
-
-        PortfolioProject::query()
-            ->select(['title', 'image_url', 'client_logo_url', 'gallery'])
-            ->get()
-            ->each(function (PortfolioProject $project) use (&$map, $service): void {
-                static::pushAttachmentLabel(
-                    $map,
-                    $service,
-                    $project->image_url,
-                    "Project: {$project->title}",
-                );
-
-                static::pushAttachmentLabel(
-                    $map,
-                    $service,
-                    $project->client_logo_url,
-                    "Project: {$project->title}",
-                );
-
-                foreach ($project->gallery ?? [] as $galleryImage) {
+                foreach ($post->getMedia('image') as $media) {
                     static::pushAttachmentLabel(
                         $map,
                         $service,
-                        $galleryImage,
+                        static::mediaReference($media),
+                        "Post: {$post->title}",
+                    );
+                }
+            });
+
+        PortfolioProject::query()
+            ->with('media')
+            ->get(['id', 'title'])
+            ->each(function (PortfolioProject $project) use (&$map, $service): void {
+                foreach ($project->getMedia('featured_image') as $media) {
+                    static::pushAttachmentLabel(
+                        $map,
+                        $service,
+                        static::mediaReference($media),
+                        "Project: {$project->title}",
+                    );
+                }
+
+                foreach ($project->getMedia('client_logo') as $media) {
+                    static::pushAttachmentLabel(
+                        $map,
+                        $service,
+                        static::mediaReference($media),
+                        "Project: {$project->title}",
+                    );
+                }
+
+                foreach ($project->getMedia('gallery') as $media) {
+                    static::pushAttachmentLabel(
+                        $map,
+                        $service,
+                        static::mediaReference($media),
                         "Project: {$project->title}",
                     );
                 }
@@ -317,5 +323,10 @@ HTML;
     protected static function makeAttachmentKey(string $storageDisk, string $relativePath): string
     {
         return $storageDisk . '|' . $relativePath;
+    }
+
+    protected static function mediaReference(Media $media): string
+    {
+        return '/storage/' . ltrim($media->getPathRelativeToRoot(), '/');
     }
 }

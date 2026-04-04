@@ -8,6 +8,7 @@ use App\Models\PortfolioProject;
 use App\Observers\BlogPostObserver;
 use App\Observers\MediaAssetObserver;
 use App\Observers\PortfolioProjectObserver;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -25,6 +26,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Schema::defaultStringLength(191);
+
         BlogPost::observe(BlogPostObserver::class);
         PortfolioProject::observe(PortfolioProjectObserver::class);
         MediaAsset::observe(MediaAssetObserver::class);

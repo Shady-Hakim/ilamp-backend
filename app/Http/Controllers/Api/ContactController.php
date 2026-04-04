@@ -7,6 +7,7 @@ use App\Models\ContactMessage;
 use App\Models\MailSetting;
 use App\Models\SiteSetting;
 use App\Services\MailSettingsService;
+use App\Services\RecaptchaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -15,14 +16,19 @@ use Throwable;
 
 class ContactController extends Controller
 {
-    public function store(Request $request, MailSettingsService $mailSettingsService): JsonResponse
+    public function store(Request $request, MailSettingsService $mailSettingsService, RecaptchaService $recaptcha): JsonResponse
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255'],
-            'subject' => ['nullable', 'string', 'max:255'],
-            'message' => ['required', 'string'],
+            'name'              => ['required', 'string', 'max:255'],
+            'email'             => ['required', 'email', 'max:255'],
+            'subject'           => ['nullable', 'string', 'max:255'],
+            'message'           => ['required', 'string'],
+            'recaptcha_token'   => ['nullable', 'string'],
         ]);
+
+        if (! $recaptcha->verify($request->input('recaptcha_token'))) {
+            return response()->json(['message' => 'reCAPTCHA verification failed. Please try again.'], 422);
+        }
 
         $message = ContactMessage::query()->create($data);
 

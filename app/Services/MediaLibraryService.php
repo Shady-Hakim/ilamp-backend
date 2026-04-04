@@ -2,9 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\BlogPost;
 use App\Models\MediaAsset;
-use App\Models\PortfolioProject;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
@@ -62,20 +60,6 @@ class MediaLibraryService
             ->each(fn (MediaAsset $asset) => $asset->delete());
 
         return $count;
-    }
-
-    public function syncBlogPost(BlogPost $blogPost): int
-    {
-        return $this->syncReferencedFiles([$blogPost->image_url]);
-    }
-
-    public function syncPortfolioProject(PortfolioProject $project): int
-    {
-        return $this->syncReferencedFiles([
-            $project->image_url,
-            $project->client_logo_url,
-            ...($project->gallery ?? []),
-        ]);
     }
 
     /**
@@ -208,55 +192,6 @@ class MediaLibraryService
         ];
     }
 
-    public function clearAssetReferences(MediaAsset $asset): void
-    {
-        BlogPost::query()
-            ->select(['id', 'image_url'])
-            ->get()
-            ->each(function (BlogPost $post) use ($asset): void {
-                if (! $this->referenceMatchesAsset($post->image_url, $asset)) {
-                    return;
-                }
-
-                BlogPost::query()
-                    ->whereKey($post->getKey())
-                    ->update(['image_url' => null]);
-            });
-
-        PortfolioProject::query()
-            ->select(['id', 'image_url', 'client_logo_url', 'gallery'])
-            ->get()
-            ->each(function (PortfolioProject $project) use ($asset): void {
-                $updates = [];
-
-                if ($this->referenceMatchesAsset($project->image_url, $asset)) {
-                    $updates['image_url'] = null;
-                }
-
-                if ($this->referenceMatchesAsset($project->client_logo_url, $asset)) {
-                    $updates['client_logo_url'] = null;
-                }
-
-                $existingGallery = array_values($project->gallery ?? []);
-                $filteredGallery = array_values(array_filter(
-                    $existingGallery,
-                    fn (?string $reference): bool => ! $this->referenceMatchesAsset($reference, $asset),
-                ));
-
-                if ($filteredGallery !== $existingGallery) {
-                    $updates['gallery'] = $filteredGallery;
-                }
-
-                if ($updates === []) {
-                    return;
-                }
-
-                PortfolioProject::query()
-                    ->whereKey($project->getKey())
-                    ->update($updates);
-            });
-    }
-
     /**
      * @return array{storage_disk: string, relative_path: string}|null
      */
@@ -322,6 +257,11 @@ class MediaLibraryService
         }
 
         return null;
+    }
+
+    public function syncUploadedFile(string $storageDisk, string $relativePath): ?MediaAsset
+    {
+        return $this->syncLocalAsset($storageDisk, $relativePath);
     }
 
     protected function syncLocalAsset(string $storageDisk, string $relativePath, $syncedAt = null): ?MediaAsset
@@ -400,15 +340,6 @@ class MediaLibraryService
     protected function isImagePath(string $path): bool
     {
         return in_array(Str::lower(pathinfo($path, PATHINFO_EXTENSION)), self::IMAGE_EXTENSIONS, true);
-    }
-
-    protected function referenceMatchesAsset(?string $reference, MediaAsset $asset): bool
-    {
-        $normalized = $this->normalizeReference($reference);
-
-        return $normalized !== null
-            && $normalized['storage_disk'] === $asset->storage_disk
-            && $normalized['relative_path'] === $asset->relative_path;
     }
 
     /**
