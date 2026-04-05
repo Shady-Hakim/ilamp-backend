@@ -30,7 +30,12 @@ class ContactController extends Controller
             return response()->json(['message' => 'reCAPTCHA verification failed. Please try again.'], 422);
         }
 
-        $message = ContactMessage::query()->create($data);
+        $message = ContactMessage::query()->create([
+            'name'    => $data['name'],
+            'email'   => $data['email'],
+            'subject' => $data['subject'] ?? null,
+            'message' => $data['message'],
+        ]);
 
         $this->sendNotification($data, $mailSettingsService);
 

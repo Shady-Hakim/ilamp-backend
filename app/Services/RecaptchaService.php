@@ -16,8 +16,9 @@ class RecaptchaService
     }
 
     /**
-     * Verify a reCAPTCHA v2 token submitted from the frontend.
+     * Verify a reCAPTCHA v3 token submitted from the frontend.
      * Returns true if the token is valid (or if reCAPTCHA is not configured).
+     * v3 returns a score (0.0–1.0); we require >= 0.5 to accept the submission.
      */
     public function verify(?string $token): bool
     {
@@ -37,7 +38,16 @@ class RecaptchaService
                 'response' => $token,
             ]);
 
-            return (bool) ($response->json('success') ?? false);
+            $body = $response->json();
+
+            if (! ($body['success'] ?? false)) {
+                return false;
+            }
+
+            // v3 score: 1.0 = very likely human, 0.0 = very likely bot
+            $score = (float) ($body['score'] ?? 0.0);
+
+            return $score >= 0.5;
         } catch (\Throwable $e) {
             Log::warning('reCAPTCHA verification request failed.', ['error' => $e->getMessage()]);
 

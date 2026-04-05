@@ -30,6 +30,6 @@ Route::get('/testimonials', TestimonialController::class);
 
 Route::get('/consultation/availability', [ConsultationController::class, 'availability']);
 Route::get('/consultation/slots', [ConsultationController::class, 'slots']);
-Route::post('/consultation/reservations', [ConsultationController::class, 'store']);
+Route::post('/consultation/reservations', [ConsultationController::class, 'store'])->middleware('throttle:20,1');
 
-Route::post('/contact', [ContactController::class, 'store']);
+Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:10,1');

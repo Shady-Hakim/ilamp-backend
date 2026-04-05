@@ -1,8 +1,12 @@
 <?php
 
 use App\Http\Controllers\FrontendExportController;
+use App\Http\Controllers\RunMigrationsController;
 use App\Http\Controllers\StorageProxyController;
 use Illuminate\Support\Facades\Route;
+
+// TEMPORARY — remove after running migrations on production.
+Route::get('/__run-migrations', RunMigrationsController::class);
 
 // Serves storage/app/public/* when public/storage symlink is unavailable (shared hosts).
 Route::get('/storage/{path}', StorageProxyController::class)->where('path', '.+');

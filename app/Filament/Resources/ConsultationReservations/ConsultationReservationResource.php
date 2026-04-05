@@ -66,6 +66,12 @@ class ConsultationReservationResource extends Resource
                 ->helperText('Saving a changed status will email the client automatically, except Confirmed. Use Email Client to send the meeting invitation and confirm the reservation.')
                 ->required(),
             TextInput::make('source'),
+            TextInput::make('meeting_link')
+                ->label('Meeting link')
+                ->url()
+                ->placeholder('https://meet.google.com/...')
+                ->helperText('Saved here and pre-filled in the Email Client popup. Use {{meeting_link}} in the Email Client template.')
+                ->columnSpanFull(),
             Textarea::make('message')
                 ->label('Client message')
                 ->rows(5)
@@ -126,7 +132,8 @@ class ConsultationReservationResource extends Resource
                             ->label('Meeting link')
                             ->url()
                             ->placeholder('https://meet.google.com/...')
-                            ->helperText('This value is available in Settings > Email Bodies > Email Client as {{meeting_link}}.')
+                            ->helperText('This value is available in Settings > Email Bodies > Email Client as {{meeting_link}}. It will also be saved to the reservation.')
+                            ->default(fn (ConsultationReservation $record): ?string => $record->meeting_link)
                             ->required(),
                     ])
                     ->action(function (
@@ -135,7 +142,14 @@ class ConsultationReservationResource extends Resource
                         ConsultationReservationMailService $mailService,
                     ): void {
                         $wasConfirmed = $record->status === 'confirmed';
-                        $error = $mailService->sendClientMessage($record, $data['meeting_link']);
+                        $meetingLink = $data['meeting_link'];
+
+                        // Persist the (possibly updated) meeting link
+                        if ($record->meeting_link !== $meetingLink) {
+                            $record->update(['meeting_link' => $meetingLink]);
+                        }
+
+                        $error = $mailService->sendClientMessage($record, $meetingLink);
 
                         if ($error) {
                             Notification::make()

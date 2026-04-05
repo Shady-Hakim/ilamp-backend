@@ -73,19 +73,21 @@ class SiteSettingResource extends Resource
                         ->columnSpanFull(),
                 ]),
             Section::make('Google reCAPTCHA')
+                ->description('Keys must be for reCAPTCHA v3. Create keys at https://www.google.com/recaptcha/admin/create — select "Score based (v3)".')
                 ->schema([
                     TextInput::make('recaptcha_site_key')
-                        ->label('Site Key (public)')
+                        ->label('Site Key (public) — v3')
                         ->maxLength(255)
                         ->placeholder('6Le...')
-                        ->helperText('Paste the Site Key from your Google reCAPTCHA admin console.'),
+                        ->helperText('Must be a reCAPTCHA v3 site key.'),
                     TextInput::make('recaptcha_secret_key')
-                        ->label('Secret Key (private)')
+                        ->label('Secret Key (private) — v3')
                         ->password()
                         ->revealable()
                         ->maxLength(255)
-                        ->placeholder('6Le...')
-                        ->helperText('Paste the Secret Key. It is stored securely and never exposed to the frontend.'),
+                        ->placeholder('Leave blank to keep the existing key')
+                        ->dehydrated(fn (?string $state): bool => filled($state))
+                        ->helperText('Paste a new Secret Key to update it, or leave blank to keep the current value.'),
                 ])
                 ->columns(1),
         ]);
