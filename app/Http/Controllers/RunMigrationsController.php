@@ -24,6 +24,9 @@ class RunMigrationsController extends Controller
             Artisan::call('migrate', ['--force' => true]);
             $output[] = '=== migrate ===' . PHP_EOL . Artisan::output();
 
+            Artisan::call('cache:clear');
+            $output[] = '=== cache:clear ===' . PHP_EOL . Artisan::output();
+
             Artisan::call('optimize:clear');
             $output[] = '=== optimize:clear ===' . PHP_EOL . Artisan::output();
         } catch (\Throwable $e) {

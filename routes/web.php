@@ -12,7 +12,7 @@ Route::get('/__run-migrations', RunMigrationsController::class);
 Route::get('/storage/{path}', StorageProxyController::class)->where('path', '.+');
 
 Route::get('/', function () {
-    if (file_exists(public_path('index.html'))) {
+    if (is_dir(public_path('_next'))) {
         return app(FrontendExportController::class)(request());
     }
 
