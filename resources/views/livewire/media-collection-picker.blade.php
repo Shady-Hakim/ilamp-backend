@@ -6,7 +6,7 @@
 
     {{-- Current media preview --}}
     <div class="rounded-lg border border-gray-700 bg-gray-900 p-3">
-        @if ($this->currentMedia->isEmpty())
+        @if ($this->currentMedia->isEmpty() && $this->pendingPreviews->isEmpty())
             <div style="display:flex;align-items:center;gap:.5rem;padding:.4rem 0;color:#6b7280;">
                 <svg xmlns="http://www.w3.org/2000/svg" style="width:1.1rem;height:1.1rem;opacity:.5;flex-shrink:0;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -33,43 +33,66 @@
                         >×</button>
                     </div>
                 @endforeach
+                @foreach ($this->pendingPreviews as $asset)
+                    <div
+                        style="position:relative;aspect-ratio:1;overflow:hidden;border-radius:.375rem;border:1px dashed #6b7280;"
+                        onmouseenter="this.querySelector('.rm-btn').style.opacity='1'"
+                        onmouseleave="this.querySelector('.rm-btn').style.opacity='0'"
+                        title="Pending – will be attached on save"
+                    >
+                        <img src="{{ $asset->url }}" alt="{{ $asset->title ?: $asset->filename }}"
+                             style="width:100%;height:100%;object-fit:cover;display:block;">
+                        <button
+                            type="button"
+                            class="rm-btn"
+                            wire:click="removePending({{ $asset->id }})"
+                            wire:loading.attr="disabled"
+                            title="Remove"
+                            style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:#dc2626;color:#fff;font-size:10px;line-height:1;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;cursor:pointer;"
+                        >×</button>
+                    </div>
+                @endforeach
             </div>
         @endif
 
         {{-- Actions row --}}
         <div class="mt-3 flex flex-wrap items-center gap-2">
-            @if ($record)
+            <button
+                type="button"
+                wire:click="openModal"
+                wire:loading.attr="disabled"
+                class="inline-flex items-center gap-1.5 rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-primary-700 disabled:opacity-60"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <span wire:loading.remove wire:target="openModal">Browse Library / Upload</span>
+                <span wire:loading wire:target="openModal">Loading…</span>
+            </button>
+
+            @if ($record && $this->currentMedia->isNotEmpty())
                 <button
                     type="button"
-                    wire:click="openModal"
+                    wire:click="clearAll"
                     wire:loading.attr="disabled"
-                    class="inline-flex items-center gap-1.5 rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-primary-700 disabled:opacity-60"
+                    wire:confirm="Remove all images from this collection?"
+                    class="inline-flex items-center gap-1 rounded-md border border-gray-600 px-3 py-1.5 text-sm text-gray-400 transition hover:border-red-500 hover:text-red-400 disabled:opacity-60"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    <span wire:loading.remove wire:target="openModal">Browse Library / Upload</span>
-                    <span wire:loading wire:target="openModal">Loading…</span>
+                    Clear all
                 </button>
+            @elseif (! $record && ! empty($pendingMediaIds))
+                <button
+                    type="button"
+                    wire:click="clearPending"
+                    wire:loading.attr="disabled"
+                    class="inline-flex items-center gap-1 rounded-md border border-gray-600 px-3 py-1.5 text-sm text-gray-400 transition hover:border-red-500 hover:text-red-400 disabled:opacity-60"
+                >
+                    Clear
+                </button>
+            @endif
 
-                @if ($this->currentMedia->isNotEmpty())
-                    <button
-                        type="button"
-                        wire:click="clearAll"
-                        wire:loading.attr="disabled"
-                        wire:confirm="Remove all images from this collection?"
-                        class="inline-flex items-center gap-1 rounded-md border border-gray-600 px-3 py-1.5 text-sm text-gray-400 transition hover:border-red-500 hover:text-red-400 disabled:opacity-60"
-                    >
-                        Clear all
-                    </button>
-                @endif
-            @else
-                <p class="text-sm text-yellow-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="inline h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    Save the record first to manage images.
-                </p>
+            @if (! $record && empty($pendingMediaIds))
+                <span style="font-size:.75rem;color:#6b7280;">Image will be saved when you submit the form.</span>
             @endif
         </div>
     </div>
@@ -115,6 +138,12 @@
                 <div style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
 
                     @if ($activeTab === 'library')
+                        {{-- Pre-compute pagination state so Alpine can read it via data attribute --}}
+                        @php($libLimit = $libraryPage * 24)
+                        @php($libAll = $this->libraryAssets)
+                        @php($libHasMore = $libAll->count() > $libLimit)
+                        @php($libVisible = $libAll->take($libLimit))
+
                         {{-- Search --}}
                         <div style="padding:.75rem 1.25rem;flex-shrink:0;">
                             <input
@@ -127,12 +156,23 @@
                         </div>
 
                         {{-- Image grid --}}
-                        <div style="flex:1;overflow-y:auto;padding:0 1.25rem 1.25rem;">
+                        <div
+                            style="flex:1;overflow-y:auto;padding:0 1.25rem 1.25rem;"
+                            data-lib-has-more="{{ $libHasMore ? '1' : '0' }}"
+                            x-data
+                            x-on:scroll.debounce.150ms="
+                                const el = $event.target;
+                                if (el.dataset.libHasMore === '1' && el.scrollTop + el.clientHeight >= el.scrollHeight - 150) {
+                                    $wire.loadMoreLibrary();
+                                }
+                            "
+                        >
                             <div wire:loading wire:target="search" style="text-align:center;padding:2rem;color:#6b7280;font-size:.875rem;">
                                 Loading…
                             </div>
                             <div wire:loading.remove wire:target="search">
-                                @if ($this->libraryAssets->isEmpty())
+
+                                @if ($libVisible->isEmpty())
                                     <div style="text-align:center;padding:3rem;color:#6b7280;">
                                         <svg xmlns="http://www.w3.org/2000/svg" style="width:2.5rem;height:2.5rem;margin:0 auto 1rem;opacity:.4;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -144,7 +184,7 @@
                                     </div>
                                 @else
                                     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.625rem;">
-                                        @foreach ($this->libraryAssets as $asset)
+                                        @foreach ($libVisible as $asset)
                                             <div
                                                 wire:key="asset-{{ $asset->id }}"
                                                 wire:click="selectAsset({{ $asset->id }})"
@@ -172,6 +212,22 @@
                                         @endforeach
                                     </div>
                                 @endif
+
+                                {{-- Load-more indicator --}}
+                                <div style="display:flex;align-items:center;justify-content:center;padding:.75rem 0;min-height:2.5rem;">
+                                    <span wire:loading wire:target="loadMoreLibrary" style="display:inline-flex;align-items:center;gap:.4rem;color:#6b7280;font-size:.8rem;">
+                                        <svg class="animate-spin" style="width:1rem;height:1rem;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle style="opacity:.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                            <path style="opacity:.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                                        </svg>
+                                        Loading…
+                                    </span>
+                                    @if ($libHasMore)
+                                        <span wire:loading.remove wire:target="loadMoreLibrary" style="font-size:.75rem;color:#4b5563;">Scroll for more</span>
+                                    @elseif (! $libVisible->isEmpty())
+                                        <span wire:loading.remove wire:target="loadMoreLibrary" style="font-size:.75rem;color:#4b5563;">All images loaded</span>
+                                    @endif
+                                </div>
                             </div>
                         </div>
 

@@ -29,15 +29,30 @@ class MediaCollectionPicker extends Component
 
     public string $search = '';
 
+    public int $libraryPage = 1;
+
     /** @var \Livewire\Features\SupportFileUploads\TemporaryUploadedFile|null */
     public $uploadFile = null;
 
     public string $uploadError = '';
 
+    /** MediaAsset IDs selected before the record is first saved. */
+    public array $pendingMediaIds = [];
+
     #[Computed]
     public function currentMedia(): Collection
     {
         return $this->record?->getMedia($this->collection) ?? collect();
+    }
+
+    #[Computed]
+    public function pendingPreviews(): Collection
+    {
+        if ($this->record || empty($this->pendingMediaIds)) {
+            return collect();
+        }
+
+        return MediaAsset::whereIn('id', $this->pendingMediaIds)->get();
     }
 
     #[Computed]
@@ -52,7 +67,7 @@ class MediaCollectionPicker extends Component
                 })
             )
             ->orderByDesc('updated_at')
-            ->limit(100)
+            ->limit($this->libraryPage * 24 + 1)
             ->get();
     }
 
@@ -60,15 +75,45 @@ class MediaCollectionPicker extends Component
     {
         $this->modalOpen = true;
         $this->search = '';
+        $this->libraryPage = 1;
         $this->uploadFile = null;
         $this->uploadError = '';
         $this->activeTab = 'library';
         unset($this->libraryAssets);
     }
 
+    public function updatedSearch(): void
+    {
+        $this->libraryPage = 1;
+        unset($this->libraryAssets);
+    }
+
+    public function loadMoreLibrary(): void
+    {
+        if ($this->libraryAssets->count() <= $this->libraryPage * 24) {
+            return;
+        }
+        $this->libraryPage++;
+        unset($this->libraryAssets);
+    }
+
     public function selectAsset(int $assetId): void
     {
         if (! $this->record) {
+            // No record yet – queue for attachment after save
+            if (! $this->multiple) {
+                $this->pendingMediaIds = [$assetId];
+            } elseif (! in_array($assetId, $this->pendingMediaIds)) {
+                $this->pendingMediaIds[] = $assetId;
+            }
+
+            $this->dispatch('pending-media-updated', collection: $this->collection, ids: $this->pendingMediaIds);
+            unset($this->pendingPreviews);
+
+            if (! $this->multiple) {
+                $this->modalOpen = false;
+            }
+
             return;
         }
 
@@ -99,6 +144,22 @@ class MediaCollectionPicker extends Component
         if (! $this->multiple) {
             $this->modalOpen = false;
         }
+    }
+
+    public function removePending(int $assetId): void
+    {
+        $this->pendingMediaIds = array_values(
+            array_filter($this->pendingMediaIds, fn ($id) => $id !== $assetId)
+        );
+        $this->dispatch('pending-media-updated', collection: $this->collection, ids: $this->pendingMediaIds);
+        unset($this->pendingPreviews);
+    }
+
+    public function clearPending(): void
+    {
+        $this->pendingMediaIds = [];
+        $this->dispatch('pending-media-updated', collection: $this->collection, ids: []);
+        unset($this->pendingPreviews);
     }
 
     public function removeMedia(int $mediaId): void
@@ -132,7 +193,45 @@ class MediaCollectionPicker extends Component
         $this->uploadError = '';
 
         if (! $this->record) {
-            $this->uploadError = 'Save the record first before uploading.';
+            // Upload to storage first, create a MediaAsset, queue ID for attachment after save
+            try {
+                $this->validate(['uploadFile' => 'required|file|image|max:10240']);
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                $this->uploadError = $e->validator->errors()->first();
+
+                return;
+            }
+
+            $originalName = $this->uploadFile->getClientOriginalName();
+            $path = $this->uploadFile->storeAs('uploads/'.date('Y/m'), $originalName, 'public');
+
+            if (! $path) {
+                $this->uploadError = 'Failed to store the uploaded file.';
+
+                return;
+            }
+
+            $asset = app(MediaLibraryService::class)->syncUploadedFile(MediaAsset::DISK_PUBLIC, $path);
+
+            if (! $asset) {
+                $this->uploadError = 'Failed to register the file in the media library.';
+
+                return;
+            }
+
+            if (! $this->multiple) {
+                $this->pendingMediaIds = [$asset->id];
+            } else {
+                $this->pendingMediaIds[] = $asset->id;
+            }
+
+            $this->dispatch('pending-media-updated', collection: $this->collection, ids: $this->pendingMediaIds);
+            $this->uploadFile = null;
+            unset($this->pendingPreviews, $this->libraryAssets);
+
+            if (! $this->multiple) {
+                $this->modalOpen = false;
+            }
 
             return;
         }
