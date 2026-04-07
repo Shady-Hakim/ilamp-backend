@@ -48,6 +48,17 @@ class PortfolioController extends Controller
             $query->whereHas('categories', fn ($relation) => $relation->where('slug', $categorySlug));
         }
 
+        if ($request->filled('page')) {
+            $perPage = max(1, min(50, (int) $request->input('per_page', 9)));
+            $paginated = $query->paginate($perPage);
+            $paginated->setCollection(
+                $paginated->getCollection()
+                    ->map(fn (PortfolioProject $project): array => $this->transformProject($project, $request))
+            );
+
+            return response()->json($paginated);
+        }
+
         return response()->json(
             $query->get()->map(fn (PortfolioProject $project): array => $this->transformProject($project, $request))->values()
         );
