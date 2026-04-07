@@ -195,7 +195,7 @@ class MediaCollectionPicker extends Component
         if (! $this->record) {
             // Upload to storage first, create a MediaAsset, queue ID for attachment after save
             try {
-                $this->validate(['uploadFile' => 'required|file|image|max:10240']);
+                $this->validate(['uploadFile' => 'required|file|mimes:jpg,jpeg,png,gif,webp,svg,avif,bmp,ico|max:10240']);
             } catch (\Illuminate\Validation\ValidationException $e) {
                 $this->uploadError = $e->validator->errors()->first();
 
@@ -237,7 +237,7 @@ class MediaCollectionPicker extends Component
         }
 
         try {
-            $this->validate(['uploadFile' => 'required|file|image|max:10240']);
+            $this->validate(['uploadFile' => 'required|file|mimes:jpg,jpeg,png,gif,webp,svg,avif,bmp,ico|max:10240']);
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->uploadError = $e->validator->errors()->first();
 

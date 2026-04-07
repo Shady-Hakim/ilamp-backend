@@ -243,7 +243,7 @@
                                 <input
                                     type="file"
                                     wire:model="uploadFile"
-                                    accept="image/*"
+                                    accept="image/*,.svg"
                                     style="display:block;width:100%;font-size:.875rem;color:#d1d5db;background:#1f2937;border:1px solid #4b5563;border-radius:.5rem;padding:.5rem .75rem;"
                                 >
                                 <div wire:loading wire:target="uploadFile" style="margin-top:.5rem;font-size:.8rem;color:#60a5fa;">
