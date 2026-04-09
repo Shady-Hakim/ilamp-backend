@@ -22,6 +22,9 @@ class BlogPost extends Model implements HasMedia
         static::saving(function (BlogPost $post): void {
             if (blank($post->excerpt)) {
                 $post->excerpt = static::generateExcerpt($post->body);
+            } else {
+                $stripped = trim(strip_tags((string) $post->excerpt));
+                $post->excerpt = $stripped !== '' ? $stripped : static::generateExcerpt($post->body);
             }
         });
     }

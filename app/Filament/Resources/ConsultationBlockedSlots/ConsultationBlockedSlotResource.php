@@ -32,7 +32,7 @@ class ConsultationBlockedSlotResource extends Resource
             DatePicker::make('date')->required(),
             TimePicker::make('start_time')->seconds(false)->required(),
             TimePicker::make('end_time')->seconds(false)->required(),
-            TextInput::make('reason'),
+            TextInput::make('reason')->maxLength(500),
         ]);
     }
 

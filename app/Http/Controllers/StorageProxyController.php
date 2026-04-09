@@ -24,6 +24,13 @@ class StorageProxyController extends Controller
             abort(404);
         }
 
+        // Block server-side script extensions — these should never be served directly,
+        // even though PHP won't execute files stored outside the document root.
+        $ext = strtolower(pathinfo($resolved, PATHINFO_EXTENSION));
+        if (in_array($ext, ['php', 'php3', 'php4', 'php5', 'phtml', 'phar', 'htaccess', 'sh', 'bash', 'py', 'rb', 'pl'], true)) {
+            abort(403);
+        }
+
         return response()->file($resolved);
     }
 }

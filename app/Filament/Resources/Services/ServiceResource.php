@@ -40,11 +40,13 @@ class ServiceResource extends Resource
                 ->schema([
                     TextInput::make('title')
                         ->required()
+                        ->maxLength(255)
                         ->live(onBlur: true)
                         ->afterStateUpdated(function (Get $get, Set $set, mixed $old, mixed $state): void {
                             AutoSlug::sync($get, $set, $old, $state);
                         }),
                     TextInput::make('slug')
+                        ->maxLength(255)
                         ->unique(ignoreRecord: true)
                         ->mutateStateForValidationUsing(function (mixed $state, Get $get): string {
                             return AutoSlug::resolve($state, $get('title'));
@@ -53,7 +55,7 @@ class ServiceResource extends Resource
                             return AutoSlug::resolve($state, $get('title'));
                         })
                         ->helperText('Optional. If left empty, it will be generated from the title when you save.'),
-                    TextInput::make('icon_key'),
+                    TextInput::make('icon_key')->maxLength(100),
                     Toggle::make('is_published')->default(true),
                     Textarea::make('short_description')->rows(3)->columnSpanFull(),
                     TagsInput::make('features')->columnSpanFull(),
@@ -61,34 +63,34 @@ class ServiceResource extends Resource
                 ->columns(2),
             Section::make('Detail Page')
                 ->schema([
-                    TextInput::make('headline'),
-                    TextInput::make('subheadline'),
-                    Textarea::make('description')->rows(6)->columnSpanFull(),
+                    TextInput::make('headline')->maxLength(255),
+                    TextInput::make('subheadline')->maxLength(255),
+                    Textarea::make('description')->rows(6)->maxLength(5000)->columnSpanFull(),
                     Repeater::make('benefits')
                         ->schema([
-                            TextInput::make('title')->required(),
-                            Textarea::make('text')->rows(2)->required(),
+                            TextInput::make('title')->required()->maxLength(255),
+                            Textarea::make('text')->rows(2)->required()->maxLength(1000),
                         ])
                         ->columns(2)
                         ->columnSpanFull(),
                     Repeater::make('process_steps')
                         ->schema([
-                            TextInput::make('step')->required(),
-                            Textarea::make('desc')->rows(2)->required(),
+                            TextInput::make('step')->required()->maxLength(255),
+                            Textarea::make('desc')->rows(2)->required()->maxLength(1000),
                         ])
                         ->columns(2)
                         ->columnSpanFull(),
                     Repeater::make('faq_items')
                         ->schema([
-                            TextInput::make('q')->required(),
-                            Textarea::make('a')->rows(3)->required(),
+                            TextInput::make('q')->required()->maxLength(500),
+                            Textarea::make('a')->rows(3)->required()->maxLength(2000),
                         ])
                         ->columnSpanFull(),
                 ]),
             Section::make('SEO')
                 ->schema([
-                    TextInput::make('seo_title'),
-                    Textarea::make('seo_description')->rows(3),
+                    TextInput::make('seo_title')->maxLength(255),
+                    Textarea::make('seo_description')->rows(3)->maxLength(500),
                 ])
                 ->columns(2),
         ]);

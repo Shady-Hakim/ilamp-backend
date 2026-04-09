@@ -44,8 +44,8 @@ class ConsultationAvailabilityRuleResource extends Resource
                 ->required(),
             TimePicker::make('start_time')->seconds(false)->required(),
             TimePicker::make('end_time')->seconds(false)->required(),
-            TextInput::make('slot_duration_minutes')->numeric()->default(60)->required(),
-            TextInput::make('buffer_minutes')->numeric()->default(0)->required(),
+            TextInput::make('slot_duration_minutes')->numeric()->minValue(5)->maxValue(480)->default(60)->required(),
+            TextInput::make('buffer_minutes')->numeric()->minValue(0)->maxValue(120)->default(0)->required(),
             Toggle::make('is_enabled')->default(true),
         ]);
     }

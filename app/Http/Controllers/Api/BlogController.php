@@ -42,11 +42,13 @@ class BlogController extends Controller
             ->orderByDesc('is_featured')
             ->orderByDesc('published_at');
 
-        if ($categorySlug = $request->string('category')->toString()) {
+        if ($categorySlug = mb_substr($request->string('category')->toString(), 0, 255)) {
             $query->whereHas('categories', fn ($relation) => $relation->where('slug', $categorySlug));
         }
 
-        if ($search = $request->string('search')->toString()) {
+        // Limit search length to prevent excessively large LIKE-scan queries.
+        $search = mb_substr($request->string('search')->toString(), 0, 255);
+        if ($search !== '') {
             $query->where(function ($builder) use ($search): void {
                 $builder
                     ->where('title', 'like', '%'.$search.'%')

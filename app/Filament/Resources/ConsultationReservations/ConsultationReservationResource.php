@@ -57,15 +57,15 @@ class ConsultationReservationResource extends Resource
             DatePicker::make('date')->required(),
             TimePicker::make('start_time')->seconds(false)->required(),
             TimePicker::make('end_time')->seconds(false)->required(),
-            TextInput::make('name')->required(),
-            TextInput::make('email')->email()->required(),
-            TextInput::make('phone')->required(),
-            TextInput::make('company'),
+            TextInput::make('name')->required()->maxLength(255),
+            TextInput::make('email')->email()->required()->maxLength(255),
+            TextInput::make('phone')->required()->maxLength(50),
+            TextInput::make('company')->maxLength(255),
             Select::make('status')
                 ->options(self::statusOptions())
                 ->helperText('Saving a changed status will email the client automatically, except Confirmed. Use Email Client to send the meeting invitation and confirm the reservation.')
                 ->required(),
-            TextInput::make('source'),
+            TextInput::make('source')->maxLength(100),
             TextInput::make('meeting_link')
                 ->label('Meeting link')
                 ->url()
@@ -75,6 +75,7 @@ class ConsultationReservationResource extends Resource
             Textarea::make('message')
                 ->label('Client message')
                 ->rows(5)
+                ->maxLength(5000)
                 ->columnSpanFull(),
         ]);
     }

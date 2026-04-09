@@ -10,11 +10,12 @@ use Illuminate\Support\Facades\Artisan;
  */
 class RunMigrationsController extends Controller
 {
-    private const TOKEN = '08b6610f7f631fca33e1cce80aee6b23689bfbdd23ace277';
-
     public function __invoke(Request $request): string
     {
-        if (! hash_equals(self::TOKEN, (string) $request->query('token', ''))) {
+        // Token must be set in .env as MIGRATION_TOKEN (never hardcode secrets in source).
+        $token = (string) env('MIGRATION_TOKEN', '');
+
+        if ($token === '' || ! hash_equals($token, (string) $request->query('token', ''))) {
             abort(404);
         }
 

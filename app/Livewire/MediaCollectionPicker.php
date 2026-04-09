@@ -99,6 +99,8 @@ class MediaCollectionPicker extends Component
 
     public function selectAsset(int $assetId): void
     {
+        abort_unless(auth()->check(), 403);
+
         if (! $this->record) {
             // No record yet – queue for attachment after save
             if (! $this->multiple) {
@@ -148,6 +150,8 @@ class MediaCollectionPicker extends Component
 
     public function removePending(int $assetId): void
     {
+        abort_unless(auth()->check(), 403);
+
         $this->pendingMediaIds = array_values(
             array_filter($this->pendingMediaIds, fn ($id) => $id !== $assetId)
         );
@@ -157,6 +161,8 @@ class MediaCollectionPicker extends Component
 
     public function clearPending(): void
     {
+        abort_unless(auth()->check(), 403);
+
         $this->pendingMediaIds = [];
         $this->dispatch('pending-media-updated', collection: $this->collection, ids: []);
         unset($this->pendingPreviews);
@@ -164,6 +170,8 @@ class MediaCollectionPicker extends Component
 
     public function removeMedia(int $mediaId): void
     {
+        abort_unless(auth()->check(), 403);
+
         if (! $this->record) {
             return;
         }
@@ -182,6 +190,8 @@ class MediaCollectionPicker extends Component
 
     public function clearAll(): void
     {
+        abort_unless(auth()->check(), 403);
+
         if ($this->record) {
             $this->record->clearMediaCollection($this->collection);
         }
@@ -190,19 +200,24 @@ class MediaCollectionPicker extends Component
 
     public function doUpload(): void
     {
+        abort_unless(auth()->check(), 403);
+
         $this->uploadError = '';
 
         if (! $this->record) {
             // Upload to storage first, create a MediaAsset, queue ID for attachment after save
             try {
-                $this->validate(['uploadFile' => 'required|file|mimes:jpg,jpeg,png,gif,webp,svg,avif,bmp,ico|max:10240']);
+                // SVG is intentionally excluded: browsers execute inline scripts in SVG served as image/svg+xml.
+                $this->validate(['uploadFile' => 'required|file|mimes:jpg,jpeg,png,gif,webp,avif,bmp,ico|max:10240']);
             } catch (\Illuminate\Validation\ValidationException $e) {
                 $this->uploadError = $e->validator->errors()->first();
 
                 return;
             }
 
-            $originalName = $this->uploadFile->getClientOriginalName();
+            $ext          = strtolower($this->uploadFile->getClientOriginalExtension());
+            $base         = preg_replace('/[^A-Za-z0-9_\-]/', '_', pathinfo($this->uploadFile->getClientOriginalName(), PATHINFO_FILENAME));
+            $originalName = ($base ?: 'upload') . '.' . $ext;
             $path = $this->uploadFile->storeAs('uploads/'.date('Y/m'), $originalName, 'public');
 
             if (! $path) {
@@ -237,7 +252,7 @@ class MediaCollectionPicker extends Component
         }
 
         try {
-            $this->validate(['uploadFile' => 'required|file|mimes:jpg,jpeg,png,gif,webp,svg,avif,bmp,ico|max:10240']);
+            $this->validate(['uploadFile' => 'required|file|mimes:jpg,jpeg,png,gif,webp,avif,bmp,ico|max:10240']);
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->uploadError = $e->validator->errors()->first();
 
@@ -248,7 +263,9 @@ class MediaCollectionPicker extends Component
             $this->record->clearMediaCollection($this->collection);
         }
 
-        $originalName = $this->uploadFile->getClientOriginalName();
+        $ext          = strtolower($this->uploadFile->getClientOriginalExtension());
+        $base         = preg_replace('/[^A-Za-z0-9_\-]/', '_', pathinfo($this->uploadFile->getClientOriginalName(), PATHINFO_FILENAME));
+        $originalName = ($base ?: 'upload') . '.' . $ext;
 
         $media = $this->record
             ->addMedia($this->uploadFile->getRealPath())

@@ -46,11 +46,13 @@ class PortfolioProjectResource extends Resource
                 ->schema([
                     TextInput::make('title')
                         ->required()
+                        ->maxLength(255)
                         ->live(onBlur: true)
                         ->afterStateUpdated(function (Get $get, Set $set, mixed $old, mixed $state): void {
                             AutoSlug::sync($get, $set, $old, $state);
                         }),
                     TextInput::make('slug')
+                        ->maxLength(255)
                         ->unique(ignoreRecord: true)
                         ->mutateStateForValidationUsing(function (mixed $state, Get $get): string {
                             return AutoSlug::resolve($state, $get('title'));
@@ -59,7 +61,10 @@ class PortfolioProjectResource extends Resource
                             return AutoSlug::resolve($state, $get('title'));
                         })
                         ->helperText('Optional. If left empty, it will be generated from the title when you save.'),
-                    TextInput::make('year'),
+                    TextInput::make('year')
+                        ->numeric()
+                        ->minValue(1900)
+                        ->maxValue(2100),
                     TextInput::make('project_url')
                         ->label('Project link')
                         ->url()
@@ -75,7 +80,7 @@ class PortfolioProjectResource extends Resource
                     ])->columnSpanFull(),
                     Toggle::make('is_featured')->default(false),
                     Toggle::make('is_published')->default(true),
-                    Textarea::make('short_description')->rows(3)->columnSpanFull(),
+                    Textarea::make('short_description')->rows(3)->maxLength(1000)->columnSpanFull(),
                     Textarea::make('brief')->rows(5)->columnSpanFull(),
                     Select::make('categories')
                         ->relationship(name: 'categories', titleAttribute: 'name')
@@ -87,7 +92,7 @@ class PortfolioProjectResource extends Resource
             Section::make('Client and Delivery')
                 ->columnSpanFull()
                 ->schema([
-                    TextInput::make('client'),
+                    TextInput::make('client')->maxLength(255),
                     Livewire::make(MediaCollectionPicker::class, [
                         'collection' => 'client_logo',
                         'label' => 'Client logo',

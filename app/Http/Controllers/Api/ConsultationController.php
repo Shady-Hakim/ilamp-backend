@@ -61,7 +61,7 @@ class ConsultationController extends Controller
             'email'           => ['required', 'email', 'max:255'],
             'phone'           => ['required', 'string', 'max:255'],
             'company'         => ['nullable', 'string', 'max:255'],
-            'message'         => ['nullable', 'string'],
+            'message'         => ['nullable', 'string', 'max:5000'],
             'recaptcha_token' => ['nullable', 'string'],
         ]);
 

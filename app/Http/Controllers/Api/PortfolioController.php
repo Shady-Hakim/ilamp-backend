@@ -44,7 +44,7 @@ class PortfolioController extends Controller
             ->orderByDesc('year')
             ->orderBy('title');
 
-        if ($categorySlug = $request->string('category')->toString()) {
+        if ($categorySlug = mb_substr($request->string('category')->toString(), 0, 255)) {
             $query->whereHas('categories', fn ($relation) => $relation->where('slug', $categorySlug));
         }
 

@@ -40,14 +40,14 @@ class SiteSettingResource extends Resource
                 ->schema([
                     TextInput::make('site_name')->required()->maxLength(255),
                     TextInput::make('site_tagline')->maxLength(255),
-                    Textarea::make('footer_description')->rows(4)->columnSpanFull(),
+                    Textarea::make('footer_description')->rows(4)->maxLength(2000)->columnSpanFull(),
                 ])
                 ->columns(1),
             Section::make('Contact')
                 ->schema([
-                    TextInput::make('contact_email')->email(),
-                    TextInput::make('contact_phone'),
-                    TextInput::make('contact_address'),
+                    TextInput::make('contact_email')->email()->maxLength(255),
+                    TextInput::make('contact_phone')->maxLength(50),
+                    TextInput::make('contact_address')->maxLength(500),
                     TextInput::make('whatsapp_url')
                         ->label('WhatsApp Number')
                         ->tel()
@@ -55,7 +55,7 @@ class SiteSettingResource extends Resource
                         ->formatStateUsing(fn (?string $state): ?string => SiteSetting::normalizeWhatsappNumber($state))
                         ->dehydrateStateUsing(fn (?string $state): ?string => SiteSetting::normalizeWhatsappNumber($state))
                         ->helperText('Enter the WhatsApp number with country code. Example: +201555164031'),
-                    TextInput::make('response_time_text')->columnSpanFull(),
+                    TextInput::make('response_time_text')->maxLength(255)->columnSpanFull(),
                 ])
                 ->columns(1),
             Section::make('Social Links')
@@ -66,7 +66,7 @@ class SiteSettingResource extends Resource
                                 ->options(SiteSetting::socialIconOptions())
                                 ->required()
                                 ->searchable(),
-                            TextInput::make('url')->url()->required(),
+                            TextInput::make('url')->url()->maxLength(2048)->required(),
                         ])
                         ->columns(2)
                         ->defaultItems(0)

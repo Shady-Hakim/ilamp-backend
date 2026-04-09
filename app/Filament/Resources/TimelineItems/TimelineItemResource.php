@@ -30,11 +30,15 @@ class TimelineItemResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('year')->required(),
-            TextInput::make('title')->required(),
-            TextInput::make('sort_order')->numeric()->default(0),
+            TextInput::make('year')
+                ->required()
+                ->numeric()
+                ->minValue(1900)
+                ->maxValue(2100),
+            TextInput::make('title')->required()->maxLength(255),
+            TextInput::make('sort_order')->numeric()->minValue(0)->default(0),
             Toggle::make('is_published')->default(true),
-            Textarea::make('description')->rows(4)->columnSpanFull(),
+            Textarea::make('description')->rows(4)->maxLength(2000)->columnSpanFull(),
         ]);
     }
 

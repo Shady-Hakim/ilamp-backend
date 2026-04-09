@@ -37,11 +37,13 @@ class PortfolioCategoryResource extends Resource
         return $schema->components([
             TextInput::make('name')
                 ->required()
+                ->maxLength(255)
                 ->live(onBlur: true)
                 ->afterStateUpdated(function (Get $get, Set $set, mixed $old, mixed $state): void {
                     AutoSlug::sync($get, $set, $old, $state);
                 }),
             TextInput::make('slug')
+                ->maxLength(255)
                 ->unique(ignoreRecord: true)
                 ->mutateStateForValidationUsing(function (mixed $state, Get $get): string {
                     return AutoSlug::resolve($state, $get('name'));
@@ -61,7 +63,7 @@ class PortfolioCategoryResource extends Resource
                 ->native(false)
                 ->placeholder('Choose an icon'),
             Toggle::make('is_published')->default(true),
-            Textarea::make('description')->rows(4)->columnSpanFull(),
+            Textarea::make('description')->rows(4)->maxLength(2000)->columnSpanFull(),
         ]);
     }
 

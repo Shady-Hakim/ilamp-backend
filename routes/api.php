@@ -28,8 +28,11 @@ Route::get('/blog/posts/{slug}', [BlogController::class, 'show']);
 Route::get('/about/timeline', TimelineController::class);
 Route::get('/testimonials', TestimonialController::class);
 
-Route::get('/consultation/availability', [ConsultationController::class, 'availability']);
-Route::get('/consultation/slots', [ConsultationController::class, 'slots']);
+// Read endpoints are throttled separately — they query the DB on every call.
+Route::middleware('throttle:60,1')->group(function (): void {
+    Route::get('/consultation/availability', [ConsultationController::class, 'availability']);
+    Route::get('/consultation/slots', [ConsultationController::class, 'slots']);
+});
 Route::post('/consultation/reservations', [ConsultationController::class, 'store'])->middleware('throttle:20,1');
 
 Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:10,1');

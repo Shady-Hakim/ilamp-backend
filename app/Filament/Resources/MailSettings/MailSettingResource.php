@@ -49,11 +49,13 @@ class MailSettingResource extends Resource
                         ])
                         ->default('smtp')
                         ->required(),
-                    TextInput::make('host'),
+                    TextInput::make('host')->maxLength(255),
                     TextInput::make('port')
                         ->numeric()
+                        ->minValue(1)
+                        ->maxValue(65535)
                         ->helperText('On local development, SMTP port 25 is often blocked. Prefer 465 (SSL) or 587 (TLS) if your mail provider supports them.'),
-                    TextInput::make('username'),
+                    TextInput::make('username')->maxLength(255),
                     TextInput::make('password')
                         ->password()
                         ->revealable()
@@ -69,11 +71,11 @@ class MailSettingResource extends Resource
                 ->columns(2),
             Section::make('Message Defaults')
                 ->schema([
-                    TextInput::make('from_name'),
-                    TextInput::make('from_email')->email(),
-                    TextInput::make('reply_to')->email(),
-                    TextInput::make('notify_contact_to')->email(),
-                    TextInput::make('notify_consultation_to')->email(),
+                    TextInput::make('from_name')->maxLength(255),
+                    TextInput::make('from_email')->email()->maxLength(255),
+                    TextInput::make('reply_to')->email()->maxLength(255),
+                    TextInput::make('notify_contact_to')->email()->maxLength(255),
+                    TextInput::make('notify_consultation_to')->email()->maxLength(255),
                 ])
                 ->columns(2),
         ]);

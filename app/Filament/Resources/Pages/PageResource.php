@@ -50,11 +50,13 @@ class PageResource extends Resource
                     ->schema([
                         TextInput::make('title')
                             ->required()
+                            ->maxLength(255)
                             ->live(onBlur: true)
                             ->afterStateUpdated(function (Get $get, Set $set, mixed $old, mixed $state): void {
                                 AutoSlug::sync($get, $set, $old, $state);
                             }),
                         TextInput::make('slug')
+                            ->maxLength(255)
                             ->unique(ignoreRecord: true)
                             ->mutateStateForValidationUsing(function (mixed $state, Get $get): string {
                                 return AutoSlug::resolve($state, $get('title'));
@@ -64,8 +66,8 @@ class PageResource extends Resource
                             })
                             ->helperText('Optional. If left empty, it will be generated from the title when you save.'),
                         Toggle::make('is_published')->default(true),
-                        TextInput::make('meta_title'),
-                        Textarea::make('meta_description')->rows(3),
+                        TextInput::make('meta_title')->maxLength(255),
+                        Textarea::make('meta_description')->rows(3)->maxLength(500),
                     ])
                     ->columns(1),
                 Section::make('Sections')
@@ -100,7 +102,7 @@ class PageResource extends Resource
                                     : $typeLabel;
                             })
                             ->schema([
-                                TextInput::make('key')->required(),
+                                TextInput::make('key')->required()->maxLength(100),
                                 Select::make('type')
                                     ->options([
                                         'hero' => 'Hero',
@@ -111,19 +113,19 @@ class PageResource extends Resource
                                         'cta' => 'CTA',
                                     ])
                                     ->required(),
-                                TextInput::make('sort_order')->numeric()->default(0),
+                                TextInput::make('sort_order')->numeric()->minValue(0)->default(0),
                                 Toggle::make('is_enabled')->default(true),
-                                TextInput::make('content.badge'),
-                                TextInput::make('content.eyebrow'),
-                                TextInput::make('content.title'),
-                                TextInput::make('content.highlight'),
-                                TextInput::make('content.afterHighlight'),
-                                TextInput::make('content.buttonText'),
-                                TextInput::make('content.buttonUrl'),
-                                TextInput::make('content.primaryButtonText'),
-                                TextInput::make('content.primaryButtonUrl'),
-                                TextInput::make('content.secondaryButtonText'),
-                                TextInput::make('content.secondaryButtonUrl'),
+                                TextInput::make('content.badge')->maxLength(255),
+                                TextInput::make('content.eyebrow')->maxLength(255),
+                                TextInput::make('content.title')->maxLength(255),
+                                TextInput::make('content.highlight')->maxLength(255),
+                                TextInput::make('content.afterHighlight')->maxLength(255),
+                                TextInput::make('content.buttonText')->maxLength(255),
+                                TextInput::make('content.buttonUrl')->url()->maxLength(2048),
+                                TextInput::make('content.primaryButtonText')->maxLength(255),
+                                TextInput::make('content.primaryButtonUrl')->url()->maxLength(2048),
+                                TextInput::make('content.secondaryButtonText')->maxLength(255),
+                                TextInput::make('content.secondaryButtonUrl')->url()->maxLength(2048),
                                 Tabs::make('Description')
                                     ->columnSpanFull()
                                     ->tabs([

@@ -40,9 +40,9 @@ class ConsultationAvailabilityOverrideResource extends Resource
                 ->required(),
             TimePicker::make('start_time')->seconds(false),
             TimePicker::make('end_time')->seconds(false),
-            TextInput::make('slot_duration_minutes')->numeric(),
-            TextInput::make('buffer_minutes')->numeric(),
-            TextInput::make('note'),
+            TextInput::make('slot_duration_minutes')->numeric()->minValue(5)->maxValue(480),
+            TextInput::make('buffer_minutes')->numeric()->minValue(0)->maxValue(120),
+            TextInput::make('note')->maxLength(500),
         ]);
     }
 

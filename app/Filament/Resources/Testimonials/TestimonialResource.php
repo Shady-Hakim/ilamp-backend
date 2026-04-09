@@ -30,11 +30,11 @@ class TestimonialResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('name')->required(),
-            TextInput::make('role'),
-            TextInput::make('sort_order')->numeric()->default(0),
+            TextInput::make('name')->required()->maxLength(255),
+            TextInput::make('role')->maxLength(255),
+            TextInput::make('sort_order')->numeric()->minValue(0)->default(0),
             Toggle::make('is_published')->default(true),
-            Textarea::make('quote')->rows(5)->columnSpanFull()->required(),
+            Textarea::make('quote')->rows(5)->maxLength(2000)->columnSpanFull()->required(),
         ]);
     }
 

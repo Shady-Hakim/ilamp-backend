@@ -276,10 +276,18 @@ class FrontendStaticRouteService
 
     protected function jsonStringContent(string $value): string
     {
-        $encoded = json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $encoded = json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG);
+
+        // json_encode returns false on malformed UTF-8. Sanitize and retry rather than
+        // returning the raw string, which can contain literal newlines that break the
+        // line-based RSC payload (.txt) format and cause "Unterminated string" errors.
+        if (! is_string($encoded)) {
+            $value = mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+            $encoded = json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG);
+        }
 
         if (! is_string($encoded)) {
-            return $value;
+            return '';
         }
 
         return trim($encoded, '"');

@@ -46,7 +46,7 @@ class ContactMessageResource extends Resource
                 ])
                 ->required(),
             Textarea::make('message')->rows(8)->disabled()->columnSpanFull(),
-            Textarea::make('admin_notes')->rows(4)->columnSpanFull(),
+            Textarea::make('admin_notes')->rows(4)->maxLength(5000)->columnSpanFull(),
         ]);
     }
 

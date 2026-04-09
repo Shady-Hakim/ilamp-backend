@@ -47,6 +47,14 @@ class AdminPanelProvider extends PanelProvider
             ))
             ->brandLogoHeight('2.5rem')
             ->viteTheme('resources/css/filament/admin/theme.css')
+            ->renderHook(
+                'panels::head.end',
+                fn (): \Illuminate\Support\HtmlString => new \Illuminate\Support\HtmlString(
+                    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css">' .
+                    '<script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.js"></script>' .
+                    '<script src="' . asset('js/wysiwyg-helpers.js') . '"></script>'
+                )
+            )
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
