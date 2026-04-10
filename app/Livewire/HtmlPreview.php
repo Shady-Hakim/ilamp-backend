@@ -13,6 +13,8 @@ class HtmlPreview extends Component
     #[On('html-preview-updated')]
     public function updateHtml(string $html): void
     {
+        abort_unless(auth()->check(), 403);
+
         $this->html = $html;
     }
 
