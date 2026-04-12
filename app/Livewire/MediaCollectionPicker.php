@@ -99,7 +99,7 @@ class MediaCollectionPicker extends Component
 
     public function selectAsset(int $assetId): void
     {
-        abort_unless(auth()->check(), 403);
+        abort_unless(auth()->check() && auth()->user()->is_admin, 403);
 
         if (! $this->record) {
             // No record yet – queue for attachment after save
@@ -150,7 +150,7 @@ class MediaCollectionPicker extends Component
 
     public function removePending(int $assetId): void
     {
-        abort_unless(auth()->check(), 403);
+        abort_unless(auth()->check() && auth()->user()->is_admin, 403);
 
         $this->pendingMediaIds = array_values(
             array_filter($this->pendingMediaIds, fn ($id) => $id !== $assetId)
@@ -161,7 +161,7 @@ class MediaCollectionPicker extends Component
 
     public function clearPending(): void
     {
-        abort_unless(auth()->check(), 403);
+        abort_unless(auth()->check() && auth()->user()->is_admin, 403);
 
         $this->pendingMediaIds = [];
         $this->dispatch('pending-media-updated', collection: $this->collection, ids: []);
@@ -170,7 +170,7 @@ class MediaCollectionPicker extends Component
 
     public function removeMedia(int $mediaId): void
     {
-        abort_unless(auth()->check(), 403);
+        abort_unless(auth()->check() && auth()->user()->is_admin, 403);
 
         if (! $this->record) {
             return;
@@ -190,7 +190,7 @@ class MediaCollectionPicker extends Component
 
     public function clearAll(): void
     {
-        abort_unless(auth()->check(), 403);
+        abort_unless(auth()->check() && auth()->user()->is_admin, 403);
 
         if ($this->record) {
             $this->record->clearMediaCollection($this->collection);
@@ -200,15 +200,14 @@ class MediaCollectionPicker extends Component
 
     public function doUpload(): void
     {
-        abort_unless(auth()->check(), 403);
+        abort_unless(auth()->check() && auth()->user()->is_admin, 403);
 
         $this->uploadError = '';
 
         if (! $this->record) {
             // Upload to storage first, create a MediaAsset, queue ID for attachment after save
             try {
-                // SVG is intentionally excluded: browsers execute inline scripts in SVG served as image/svg+xml.
-                $this->validate(['uploadFile' => 'required|file|mimes:jpg,jpeg,png,gif,webp,avif,bmp,ico|max:10240']);
+                $this->validate(['uploadFile' => 'required|file|mimes:jpg,jpeg,png,gif,webp,avif,bmp,ico,svg|max:10240']);
             } catch (\Illuminate\Validation\ValidationException $e) {
                 $this->uploadError = $e->validator->errors()->first();
 
@@ -252,7 +251,7 @@ class MediaCollectionPicker extends Component
         }
 
         try {
-            $this->validate(['uploadFile' => 'required|file|mimes:jpg,jpeg,png,gif,webp,avif,bmp,ico|max:10240']);
+            $this->validate(['uploadFile' => 'required|file|mimes:jpg,jpeg,png,gif,webp,avif,bmp,ico,svg|max:10240']);
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->uploadError = $e->validator->errors()->first();
 
