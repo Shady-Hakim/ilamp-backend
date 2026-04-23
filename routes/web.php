@@ -6,8 +6,8 @@ use App\Http\Controllers\StorageProxyController;
 use Illuminate\Support\Facades\Route;
 
 // TEMPORARY — remove after running migrations on production.
-// Throttled to 3 requests/min; token is required via MIGRATION_TOKEN env var.
-Route::middleware('throttle:3,1')->get('/__run-migrations', RunMigrationsController::class);
+// Token is required via MIGRATION_TOKEN env var. Throttle is relaxed to avoid accidental lockouts.
+Route::middleware('throttle:20,1')->get('/__run-migrations', RunMigrationsController::class);
 
 // Serves storage/app/public/* when public/storage symlink is unavailable (shared hosts).
 Route::get('/storage/{path}', StorageProxyController::class)->where('path', '.+');

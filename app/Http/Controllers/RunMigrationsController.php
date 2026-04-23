@@ -12,8 +12,8 @@ class RunMigrationsController extends Controller
 {
     public function __invoke(Request $request): string
     {
-        // Token must be set in .env as MIGRATION_TOKEN (never hardcode secrets in source).
-        $token = (string) env('MIGRATION_TOKEN', '');
+        // Read from config first (works with cached config), fallback to env for local/dev flexibility.
+        $token = (string) (config('app.migration_token') ?: env('MIGRATION_TOKEN', ''));
 
         if ($token === '' || ! hash_equals($token, (string) $request->query('token', ''))) {
             abort(404);

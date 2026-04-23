@@ -17,7 +17,6 @@ use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\NumberInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
@@ -28,6 +27,8 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Schema as DatabaseSchema;
 
 class PortfolioProjectResource extends Resource
 {
@@ -66,9 +67,9 @@ class PortfolioProjectResource extends Resource
                         ->numeric()
                         ->minValue(1900)
                         ->maxValue(2100),
-                    NumberInput::make('order')
+                    TextInput::make('order')
                         ->label('Sort order')
-                        ->integer()
+                        ->numeric()
                         ->minValue(0)
                         ->helperText('Lower numbers appear first. Leave blank for default ordering.'),
                     TextInput::make('project_url')
@@ -126,27 +127,35 @@ class PortfolioProjectResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $hasOrderColumn = DatabaseSchema::hasColumn((new PortfolioProject)->getTable(), 'order');
+
         return $table
-            ->defaultSort('order', 'asc')
+            ->defaultSort($hasOrderColumn ? 'order' : 'published_at', $hasOrderColumn ? 'asc' : 'desc')
             ->columns([
-                TextColumn::make('order')
-                    ->label('Order')
-                    ->sortable()
-                    ->searchable(false)
-                    ->width('60px')
-                    ->columnClass('text-center')
-                    ->numeric(),
+                ...($hasOrderColumn ? [
+                    TextColumn::make('order')
+                        ->label('Order')
+                        ->sortable(query: function (Builder $query, string $direction): Builder {
+                            $direction = strtolower($direction) === 'desc' ? 'DESC' : 'ASC';
+
+                            return $query
+                                ->orderByRaw("`order` IS NULL, `order` {$direction}")
+                                ->orderByDesc('published_at');
+                        })
+                        ->searchable(false)
+                        ->width('60px')
+                        ->alignCenter()
+                        ->numeric(),
+                ] : []),
                 TextColumn::make('title')
                     ->label('Title')
                     ->searchable()
                     ->limit(50)
-                    ->tooltip()
                     ->width('250px'),
                 TextColumn::make('slug')
                     ->label('Slug')
                     ->copyable()
                     ->limit(30)
-                    ->tooltip()
                     ->width('180px'),
                 TextColumn::make('published_at')
                     ->label('Published')
@@ -156,12 +165,12 @@ class PortfolioProjectResource extends Resource
                 TextColumn::make('year')
                     ->label('Year')
                     ->width('80px')
-                    ->columnClass('text-center'),
+                    ->alignCenter(),
                 IconColumn::make('is_published')
                     ->label('Status')
                     ->boolean()
                     ->width('80px')
-                    ->columnClass('text-center'),
+                    ->alignCenter(),
             ])
             ->filters([])
             ->recordActions([

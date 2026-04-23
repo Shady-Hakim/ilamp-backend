@@ -54,6 +54,9 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    // Temporary token used by /__run-migrations.
+    'migration_token' => env('MIGRATION_TOKEN', ''),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
