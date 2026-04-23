@@ -39,6 +39,7 @@ class PortfolioController extends Controller
         $query = PortfolioProject::query()
             ->where('is_published', true)
             ->with(['categories' => fn ($relation) => $relation->where('is_published', true)])
+            ->orderByRaw('`order` IS NULL, `order` ASC') // NULLs last
             ->orderByDesc('is_featured')
             ->orderByDesc('published_at')
             ->orderByDesc('year')
@@ -100,6 +101,7 @@ class PortfolioController extends Controller
             'clientLogo' => $clientLogoMeta['url'] ?? null,
             'clientLogoMeta' => $clientLogoMeta,
             'year' => $project->year,
+            'order' => $project->order,
             'challenge' => $project->challenge,
             'solution' => $project->solution,
             'results' => $project->results ?? [],

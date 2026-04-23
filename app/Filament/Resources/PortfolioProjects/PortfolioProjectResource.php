@@ -17,6 +17,7 @@ use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\NumberInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
@@ -65,6 +66,11 @@ class PortfolioProjectResource extends Resource
                         ->numeric()
                         ->minValue(1900)
                         ->maxValue(2100),
+                    NumberInput::make('order')
+                        ->label('Sort order')
+                        ->integer()
+                        ->minValue(0)
+                        ->helperText('Lower numbers appear first. Leave blank for default ordering.'),
                     TextInput::make('project_url')
                         ->label('Project link')
                         ->url()
@@ -121,13 +127,41 @@ class PortfolioProjectResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultSort('published_at', 'desc')
+            ->defaultSort('order', 'asc')
             ->columns([
-                TextColumn::make('title')->searchable(),
-                TextColumn::make('slug')->copyable(),
-                TextColumn::make('published_at')->dateTime()->sortable(),
-                TextColumn::make('year'),
-                IconColumn::make('is_published')->boolean(),
+                TextColumn::make('order')
+                    ->label('Order')
+                    ->sortable()
+                    ->searchable(false)
+                    ->width('60px')
+                    ->columnClass('text-center')
+                    ->numeric(),
+                TextColumn::make('title')
+                    ->label('Title')
+                    ->searchable()
+                    ->limit(50)
+                    ->tooltip()
+                    ->width('250px'),
+                TextColumn::make('slug')
+                    ->label('Slug')
+                    ->copyable()
+                    ->limit(30)
+                    ->tooltip()
+                    ->width('180px'),
+                TextColumn::make('published_at')
+                    ->label('Published')
+                    ->dateTime()
+                    ->sortable()
+                    ->width('160px'),
+                TextColumn::make('year')
+                    ->label('Year')
+                    ->width('80px')
+                    ->columnClass('text-center'),
+                IconColumn::make('is_published')
+                    ->label('Status')
+                    ->boolean()
+                    ->width('80px')
+                    ->columnClass('text-center'),
             ])
             ->filters([])
             ->recordActions([

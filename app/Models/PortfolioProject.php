@@ -33,6 +33,7 @@ class PortfolioProject extends Model implements HasMedia
             'is_featured' => 'boolean',
             'is_published' => 'boolean',
             'published_at' => 'datetime',
+            'order' => 'integer',
         ];
     }
 
